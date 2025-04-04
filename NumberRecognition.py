@@ -32,7 +32,7 @@ test_dataloader = DataLoader(test_data, batch_size=batch_size)  # Dane testowe n
 
 # Sprawdzenie wymiarów pojedynczej partii danych
 for X, y in test_dataloader:
-    print(f"Shape of X [N, C, H, W]: {X.shape}")  # N: liczba obrazów w wsadzie, C: liczba kanałów (1 - skala szarości), HxW: wymiary obrazu
+    print(f"Shape of X [N, C, H, W]: {X.shape}")  # N: liczba obrazów, C: liczba kanałów (1 - skala szarości), HxW: wymiary obrazu
     print(f"Shape of y: {y.shape} {y.dtype}")  # Wektory klas
     break
 
@@ -44,25 +44,36 @@ print(f"Using {device} device")
 class NeuralNetwork(nn.Module):
     def __init__(self):
         super().__init__()
-        self.flatten = nn.Flatten()  # Spłaszczenie obrazu 28x28 do jednowymiarowego wektora 784-elementowego
-        self.linear_relu_stack = nn.Sequential(
-            nn.Linear(28 * 28, 512),  # Warstwa w pełni połączona (784 wejścia -> 512 neuronów)
-            nn.BatchNorm1d(512),  # Batch normalization (normalizacja wsadowa)
-            nn.ReLU(),  # Funkcja aktywacji ReLU
-            nn.Dropout(0.2),  # Dropout (losowe wyłączanie 20% neuronów)
 
-            nn.Linear(512, 512),  # Kolejna warstwa w pełni połączona
-            nn.BatchNorm1d(512),  # Batch normalization
-            nn.ReLU(),  # Funkcja aktywacji ReLU
-            nn.Dropout(0.2),  # Dropout
+        #  stos warstw konwolucyjnych
+        self.conv_stack = nn.Sequential(
+            nn.Conv2d(in_channels=1, out_channels=64, kernel_size=3, padding=1),  # 1 kanał → 64
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2),  # 28x28 → 14x14
 
-            nn.Linear(512, 10)  # Ostateczna warstwa (10 neuronów dla każdej cyfry 0-9)
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),  # 64 → 128
+            nn.ReLU(),
+            nn.MaxPool2d(2),  # 14x14 → 7x7
+
+            nn.Conv2d(128, 128, kernel_size=3, padding=1),  # Nowa warstwa: 128 → 128
+            nn.ReLU(),
+            nn.MaxPool2d(2)  # 7x7 → 3x3
+        )
+
+        # klasyfikator dopasowany do wyjścia [B, 128, 3, 3] → [B, 1152]
+        self.classifier = nn.Sequential(
+            nn.Flatten(),  # [B, 128, 3, 3] → [B, 1152]
+            nn.Linear(128 * 3 * 3, 128),  # Fully connected
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(128, 10)  # Wyjście: 10 klas bo 10 cyfr
         )
 
     def forward(self, x):
-        x = self.flatten(x)
-        logits = self.linear_relu_stack(x)  # Przekazanie przez kolejne warstwy
+        x = self.conv_stack(x)
+        logits = self.classifier(x)
         return logits
+
 
 # Inicjalizacja modelu i przeniesienie go na GPU (jeśli dostępne)
 model = NeuralNetwork().to(device)
@@ -70,7 +81,7 @@ print(model)
 
 # Definicja funkcji kosztu i optymalizatora
 loss_fn = nn.CrossEntropyLoss()  # Funkcja strat dla klasyfikacji wieloklasowej
-optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)  # Optymalizator Adam z domyślnym learning rate = 0.001
+optimizer = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=3e-4) # Optymalizator Adam z domyślnym learning rate = 0.001
 
 # Listy do śledzenia strat i dokładności w trakcie treningu
 train_losses = []
@@ -126,11 +137,14 @@ def test(dataloader, model, loss_fn):
     print(f"Test Error: \n Accuracy: {(100*(correct/size)):>0.1f}%, Avg loss: {test_loss / num_batches:>8f} \n")
 
 # Trenowanie modelu
-epochs = 50
+epochs = 8
 for t in range(epochs):
     print(f"Epoch {t+1}\n-------------------------------")
     train(train_dataloader, model, loss_fn, optimizer)
     test(test_dataloader, model, loss_fn)
+
+avg_test_accuracy = sum(test_accuracies) / len(test_accuracies)  # Obliczenie średniej dokładności testowej
+print(f"Average Test Accuracy: {avg_test_accuracy * 100:.2f}%")
 print("Done!")
 
 # Zapisanie modelu do pliku
@@ -170,3 +184,22 @@ for ax in axes.flat:
 
 plt.show()
 
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+
+# Confusion matrix
+y_true = []
+y_pred = []
+
+model.eval()
+with torch.no_grad():
+    for X, y in test_dataloader:
+        X, y = X.to(device), y.to(device)
+        preds = model(X).argmax(1)
+        y_true.extend(y.cpu().numpy())
+        y_pred.extend(preds.cpu().numpy())
+
+cm = confusion_matrix(y_true, y_pred)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=list(range(10)))
+disp.plot(cmap=plt.cm.Blues)
+plt.title("Confusion Matrix — MNIST")
+plt.show()

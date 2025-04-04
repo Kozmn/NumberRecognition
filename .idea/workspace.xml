@@ -5,8 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c1ce3ac3-a90b-486b-9beb-2ccf795598c0" name="Changes" comment="gotowy projekt">
-      <change afterPath="$PROJECT_DIR$/50 epok batch dropout off.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/50 epok batch droput on.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NumberRecognition.py" beforeDir="false" afterPath="$PROJECT_DIR$/NumberRecognition.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mnist_model.pth" beforeDir="false" afterPath="$PROJECT_DIR$/mnist_model.pth" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,12 +24,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Kozmn/NumberRecognition.git",
-    "accountId": "f6264d4d-3f5d-4e9a-9705-4add42a70ce6"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Kozmn&quot;
   }
-}]]></component>
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Kozmn/NumberRecognition.git&quot;,
+    &quot;accountId&quot;: &quot;f6264d4d-3f5d-4e9a-9705-4add42a70ce6&quot;
+  }
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
 }</component>
@@ -79,7 +86,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743755705090</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="gotowy projekt">
+      <option name="closed" value="true" />
+      <created>1743756078000</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1743756078000</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
